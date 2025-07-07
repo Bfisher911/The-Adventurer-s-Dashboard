@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pulp Adventure Desktop</title>
+    <!-- 
+    Pulp Adventure Desktop
+    Author: Gemini
+    Created for: Blaine Fisher
+    Date: 2025-07-07
+    Version: 2.1
+    
+    Changes:
+    - Overhauled the "Captain's Safe" widget to be more intuitive.
+    - Removed browser `prompt()` in favor of an on-widget combination lock interface.
+    - The safe now has clear visual states for "Set Password", "Locked", and "Unlocked".
+    - Added a shake animation for incorrect password attempts on the safe.
+    - Replaced the browser `confirm()` on the "Reset" button with a custom, themed modal.
+    -->
+    <style>
+        /* --- FONT IMPORT (BASE64 for offline use) --- */
+        @font-face {
+            font-family: 'Cinzel';
+            font-style: normal;
+            font-weight: 400;
+            src: url(data:font/woff2;base64,d09GMgABAAAAAAYMAAsAAAAACyAAAAV4AAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAABmAAVA1iWAIICg4ACAE2AiQDBgsEAAQgBYsdByAbfA3ILH8jB691jVzYIBwVkv9//z/u3b4bY2aT4KNgojHAEIifkUe3zdsx5g8SgQAjE2OfBAwE+QkQJG4EFpXpT8P//3/y/9v/P/7f+f/z/+//v/7/+//3/9//v/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7/+///f/7-2.0.0.css) format('woff2');
+        }
+
+        /* --- GLOBAL STYLES & THEME --- */
+        :root {
+            --text-color: #4d3a2a;
+            --bg-color: #f5eeda;
+            --widget-bg: #d7c8b5;
+            --widget-bg-trans: rgba(215, 200, 181, 0.85);
+            --border-color: #8c7d6b;
+            --accent-color: #cda434;
+            --shadow-color: rgba(77, 58, 42, 0.3);
+            --font-family: 'Cinzel', serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            font-family: var(--font-family);
+            color: var(--text-color);
+            font-size: 12px;
+            user-select: none;
+        }
+        
+        #desktop {
+            width: 100%;
+            height: 100%;
+            background-color: #c9b79c;
+            background-image: 
+                linear-gradient(rgba(245, 238, 218, .5) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(245, 238, 218, .5) 2px, transparent 2px),
+                linear-gradient(rgba(245, 238, 218, .3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(245, 238, 218, .3) 1px, transparent 1px);
+            background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+            background-position:-2px -2px, -2px -2px, -1px -1px, -1px -1px;
+            position: relative;
+        }
+        
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        /* --- WIDGET STYLES --- */
+        .widget {
+            position: absolute;
+            background-color: var(--widget-bg-trans);
+            backdrop-filter: blur(2px);
+            box-shadow: 5px 5px 15px var(--shadow-color), inset 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            min-width: 220px;
+            min-height: 40px; /* Min height for collapsed header */
+            resize: both;
+            overflow: hidden;
+            border: 10px solid;
+            border-image: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0 H30 V30 H0 Z' fill='%23d7c8b5'/%3E%3Cpath d='M0 10 V0 H10 L10 2 H2 V10 H0 Z M20 0 H30 V10 H28 V2 H20 V0 Z M0 20 V30 H10 V28 H2 V20 H0 Z M20 28 H28 V20 H30 V30 H20 V28 Z' fill='%238c7d6b'/%3E%3C/svg%3E") 10 stretch;
+        }
+        
+        .widget.collapsed {
+            height: 42px !important; /* Override inline style */
+            min-height: 42px;
+            resize: none;
+        }
+        .widget.collapsed .widget-content { display: none; }
+        
+        .widget-header {
+            background-color: var(--border-color);
+            padding: 6px 10px;
+            cursor: move;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--bg-color);
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+        }
+        
+        .widget-header .title { text-transform: uppercase; letter-spacing: 1px; flex-grow: 1; }
+        .widget-header-controls { display: flex; gap: 8px; }
+        .widget-header-controls span { cursor: pointer; font-family: monospace; font-size: 1.4rem; }
+        .widget-header-controls span:hover { color: var(--accent-color); }
+
+        .widget-content { padding: 12px; flex-grow: 1; overflow-y: auto; overflow-x: hidden; }
+        .widget-content::-webkit-scrollbar { width: 10px; }
+        .widget-content::-webkit-scrollbar-track { background: var(--widget-bg); }
+        .widget-content::-webkit-scrollbar-thumb { background-color: var(--border-color); border: 2px solid var(--widget-bg); border-radius: 5px; }
+
+        /* --- UI ELEMENT STYLES --- */
+        button, input, textarea {
+            background-color: rgba(0,0,0, 0.05);
+            border: none;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--text-color);
+            font-family: var(--font-family);
+            padding: 8px;
+            outline: none;
+            font-size: 1.1rem;
+            border-radius: 0;
+        }
+        
+        button {
+            cursor: pointer;
+            padding: 8px 12px;
+            text-transform: uppercase;
+            border: 2px solid var(--border-color);
+            background-color: transparent;
+            font-weight: bold;
+            transition: all 0.2s ease-in-out;
+        }
+        button:hover {
+            background-color: var(--border-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 10px var(--shadow-color);
+        }
+        button:active { transform: translateY(1px); box-shadow: inset 0 0 5px rgba(0,0,0,0.2); }
+        input, textarea { width: 100%; }
+        input[type="checkbox"] {
+            appearance: none; width: 18px; height: 18px; border: 2px solid var(--border-color);
+            position: relative; cursor: pointer; vertical-align: middle; background-color: transparent;
+        }
+        input[type="checkbox"]:checked::before {
+            content: 'X'; font-family: serif; font-weight: bold; position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 16px; line-height: 1;
+        }
+        
+        /* --- WIDGET SPECIFIC STYLES --- */
+        #clock-widget .widget-content, #pomodoro-widget .widget-content { text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #clock-time, #pomodoro-time { font-size: 3.5rem; letter-spacing: 2px; }
+        #clock-date, #pomodoro-status { font-size: 1.3rem; margin-top: 5px; }
+
+        #todo-list, #ledger-list, #telegram-list { list-style: none; padding: 0; margin: 0; }
+        #todo-list li, #ledger-list li { display: flex; align-items: center; margin-bottom: 8px; }
+        #todo-list li span { flex-grow: 1; margin-left: 10px; cursor: text; }
+        #todo-list li.done span { text-decoration: line-through; opacity: 0.6; }
+        .delete-item { cursor: pointer; margin-left: 10px; font-weight: bold; }
+        .delete-item:hover { color: #c04040; }
+
+        #timer-display, #stopwatch-display { font-size: 2.6rem; text-align: center; margin-bottom: 10px; }
+        .controls, .timer-inputs { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
+        #lap-times { list-style-type: decimal-leading-zero; padding-left: 25px; font-size: 1.1rem; max-height: 80px; overflow-y: auto; }
+
+        #reminders-list { list-style: none; }
+        #reminders-list li { margin-bottom: 5px; }
+
+        .sticky-note textarea, #investigation-board, #safe-content {
+            background: transparent; border: none; resize: none; height: 100%; padding: 0;
+        }
+
+        #calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+        #calendar-grid div { padding: 4px; }
+        #calendar-grid .day-name { font-weight: bold; }
+        #calendar-grid .today { background-color: var(--accent-color); color: var(--bg-color); border-radius: 2px; }
+        
+        .progress-bar-container { width: 100%; height: 20px; border: 2px solid var(--border-color); background-color: rgba(0,0,0,0.1); }
+        .progress-bar-fill { width: 0%; height: 100%; background-color: var(--accent-color); transition: width 0.5s ease-out; }
+        
+        #habit-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; }
+        #habit-grid .habit-day { width: 25px; height: 25px; border: 2px solid var(--border-color); cursor: pointer; }
+        #habit-grid .habit-day.complete { background-color: var(--accent-color); }
+        
+        #world-clocks-container { display: flex; flex-direction: column; gap: 10px; text-align: center; }
+        .world-clock { font-size: 1.4rem; }
+        
+        #ledger-list .ledger-item { display: flex; justify-content: space-between; width: 100%; }
+        #ledger-total { margin-top: 10px; text-align: right; font-weight: bold; font-size: 1.2rem; }
+        
+        #telegram-list li { padding: 5px; border-bottom: 1px dashed var(--border-color); }
+        
+        #barometer-content { text-align: center; font-size: 1.5rem; }
+
+        /* --- UTILITY & OVERLAY STYLES --- */
+        #bottom-bar {
+            position: absolute; bottom: 0; left: 0; width: 100%; background: var(--border-color);
+            padding: 5px 15px; display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000; font-size: 1.2rem; color: var(--bg-color);
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.3); box-shadow: 0 -2px 10px var(--shadow-color);
+        }
+        #bottom-bar-left, #bottom-bar-right { display: flex; gap: 20px; align-items: center; }
+        #bottom-bar button { color: var(--bg-color); border-color: var(--bg-color); }
+        #bottom-bar button:hover { background-color: var(--bg-color); color: var(--border-color); }
+        
+        .modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: var(--widget-bg);
+            border: 10px solid; border-image: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0 H30 V30 H0 Z' fill='%23d7c8b5'/%3E%3Cpath d='M0 10 V0 H10 L10 2 H2 V10 H0 Z M20 0 H30 V10 H28 V2 H20 V0 Z M0 20 V30 H10 V28 H2 V20 H0 Z M20 28 H28 V20 H30 V30 H20 V28 Z' fill='%238c7d6b'/%3E%3C/svg%3E") 10 stretch;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5); padding: 20px; z-index: 9999;
+            display: none; flex-direction: column; align-items: center; gap: 15px;
+            min-width: 350px; text-align: center;
+        }
+        #widget-selector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+        #widget-selector-grid button { width: 100%; }
+    </style>
+</head>
+<body>
+
+    <div id="desktop">
+        <!-- Widgets are dynamically generated -->
+        <div class="widget" id="clock-widget" data-id="clock-widget"></div>
+        <div class="widget" id="todo-widget" data-id="todo-widget"></div>
+        <div class="widget" id="timer-stopwatch-widget" data-id="timer-stopwatch-widget"></div>
+        <div class="widget" id="reminders-widget" data-id="reminders-widget"></div>
+        <div id="sticky-notes-container"></div>
+        <div class="widget" id="calculator-widget" data-id="calculator-widget"></div>
+        <div class="widget" id="quote-widget" data-id="quote-widget"></div>
+        <div class="widget" id="calendar-widget" data-id="calendar-widget"></div>
+        <div class="widget" id="pomodoro-widget" data-id="pomodoro-widget" style="display: none;"></div>
+        <div class="widget" id="habit-widget" data-id="habit-widget" style="display: none;"></div>
+        <div class="widget" id="world-clock-widget" data-id="world-clock-widget" style="display: none;"></div>
+        <div class="widget" id="ledger-widget" data-id="ledger-widget" style="display: none;"></div>
+        <div class="widget" id="telegram-widget" data-id="telegram-widget" style="display: none;"></div>
+        <div class="widget" id="barometer-widget" data-id="barometer-widget" style="display: none;"></div>
+        <div class="widget" id="safe-widget" data-id="safe-widget" style="display: none;"></div>
+        <div class="widget" id="investigation-widget" data-id="investigation-widget" style="display: none;"></div>
+    </div>
+
+    <div id="bottom-bar">
+        <div id="bottom-bar-left">
+            <button id="add-note-btn">+ LOG ENTRY</button>
+            <button id="add-widget-btn">+ WIDGET</button>
+            <div id="sound-player">
+                <span>AUDIO:</span>
+                <button id="sound-toggle-btn">OFF</button>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" style="vertical-align: middle; width: 80px;">
+            </div>
+        </div>
+        <div id="bottom-bar-right">
+            <div id="day-progress-container" style="display: flex; align-items: center; gap: 5px;">
+                <span>SUN:</span>
+                <div class="progress-bar-container" style="width: 100px; height: 15px;">
+                    <div id="day-progress-fill" class="progress-bar-fill"></div>
+                </div>
+            </div>
+            <div id="battery-status">COIL: N/A</div>
+            <div id="network-status">COMMS: OFFLINE</div>
+            <button id="reset-btn">RESET</button>
+            <button id="fullscreen-btn">FULLSCREEN</button>
+        </div>
+    </div>
+    
+    <div id="custom-alert" class="modal">
+        <div id="custom-alert-message"></div>
+        <button id="custom-alert-ok">CONTINUE</button>
+    </div>
+
+    <div id="widget-selector-modal" class="modal">
+        <h3 style="text-transform: uppercase; letter-spacing: 1px;">Add Widget to Desktop</h3>
+        <div id="widget-selector-grid"></div>
+        <button id="widget-selector-close">Close</button>
+    </div>
+    
+    <div id="reset-confirm-modal" class="modal">
+        <h4>Reset Desktop?</h4>
+        <p style="font-size: 1.1rem;">All widget positions and saved data will be permanently lost.</p>
+        <div class="controls">
+            <button id="reset-confirm-btn" style="background-color: #c04040; color: var(--bg-color); border-color: #c04040;">Confirm Reset</button>
+            <button id="reset-cancel-btn">Cancel</button>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- CORE VARIABLES & CONFIG ---
+    const storagePrefix = 'pulpAdventure_';
+    const WIDGET_HEADER_HEIGHT = 42;
+    const BOUNDARY_MARGIN = 40; // Pixels to keep widget visible
+    
+    // --- AUDIO SETUP ---
+    const audio = { context: null, masterGain: null, hum: null, isPlaying: false };
+    function initAudioSystem() {
+        if (audio.context) return;
+        try {
+            audio.context = new (window.AudioContext || window.webkitAudioContext)();
+            audio.masterGain = audio.context.createGain();
+            audio.masterGain.connect(audio.context.destination);
+            const volumeSlider = document.getElementById('volume-slider');
+            audio.masterGain.gain.value = volumeSlider.value;
+            volumeSlider.addEventListener('input', () => {
+                if (audio.masterGain) audio.masterGain.gain.setValueAtTime(parseFloat(volumeSlider.value), audio.context.currentTime);
+            });
+        } catch (e) { console.error("Web Audio API is not supported.", e); document.getElementById('sound-player').style.display = 'none'; }
+    }
+    document.body.addEventListener('click', initAudioSystem, { once: true });
+
+    // --- UTILITY FUNCTIONS ---
+    const playSound = (type) => {
+        if (!audio.context || !audio.masterGain) return;
+        if (audio.context.state === 'suspended') audio.context.resume();
+        const sound = audio.context.createOscillator();
+        const gainNode = audio.context.createGain();
+        sound.connect(gainNode);
+        gainNode.connect(audio.masterGain);
+        gainNode.gain.setValueAtTime(audio.masterGain.gain.value, audio.context.currentTime);
+        if (type === 'click') {
+            sound.type = 'sawtooth';
+            sound.frequency.setValueAtTime(200, audio.context.currentTime);
+            sound.frequency.exponentialRampToValueAtTime(80, audio.context.currentTime + 0.15);
+            gainNode.gain.setValueAtTime(0.3, audio.context.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audio.context.currentTime + 0.15);
+            sound.start(audio.context.currentTime);
+            sound.stop(audio.context.currentTime + 0.15);
+        } else if (type === 'notify') {
+            sound.type = 'sine';
+            sound.frequency.setValueAtTime(523, audio.context.currentTime);
+            gainNode.gain.setValueAtTime(0.5, audio.context.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audio.context.currentTime + 1.5);
+            sound.start(audio.context.currentTime);
+            sound.stop(audio.context.currentTime + 1.5);
+        }
+    };
+    
+    const showAlert = (message) => {
+        playSound('notify');
+        document.getElementById('custom-alert-message').textContent = message;
+        document.getElementById('custom-alert').style.display = 'flex';
+    };
+    document.getElementById('custom-alert-ok').addEventListener('click', () => {
+        document.getElementById('custom-alert').style.display = 'none';
+        playSound('click');
+    });
+
+    // --- WIDGET INTERACTIVITY (DRAG, RESIZE, BOUNDS) ---
+    function makeWidgetInteractive(widget) {
+        const header = widget.querySelector('.widget-header');
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        if (header) header.onmousedown = dragMouseDown;
+        function dragMouseDown(e) {
+            if (e.target.matches('.widget-header-controls span')) return;
+            e.preventDefault();
+            pos3 = e.clientX; pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+        }
+        function elementDrag(e) {
+            e.preventDefault();
+            pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
+            pos3 = e.clientX; pos4 = e.clientY;
+            let newTop = widget.offsetTop - pos2;
+            let newLeft = widget.offsetLeft - pos1;
+            
+            const maxTop = window.innerHeight - BOUNDARY_MARGIN;
+            const maxLeft = window.innerWidth - BOUNDARY_MARGIN;
+            const minTop = -widget.offsetHeight + BOUNDARY_MARGIN;
+            const minLeft = -widget.offsetWidth + BOUNDARY_MARGIN;
+
+            if (newTop > maxTop) newTop = maxTop;
+            if (newLeft > maxLeft) newLeft = maxLeft;
+            if (newTop < minTop) newTop = minTop;
+            if (newLeft < minLeft) newLeft = minLeft;
+
+            widget.style.top = newTop + "px";
+            widget.style.left = newLeft + "px";
+        }
+        function closeDragElement() {
+            document.onmouseup = null;
+            document.onmousemove = null;
+            saveAllWidgetStates();
+        }
+        new ResizeObserver(saveAllWidgetStates).observe(widget);
+    }
+
+    // --- STATE MANAGEMENT ---
+    function getWidgetState(widgetId) {
+        const allStates = JSON.parse(localStorage.getItem(storagePrefix + 'widgetStates')) || {};
+        return allStates[widgetId] || {};
+    }
+
+    function saveWidgetState(widgetId, data) {
+        const allStates = JSON.parse(localStorage.getItem(storagePrefix + 'widgetStates')) || {};
+        allStates[widgetId] = { ...allStates[widgetId], ...data };
+        localStorage.setItem(storagePrefix + 'widgetStates', JSON.stringify(allStates));
+    }
+
+    function saveAllWidgetStates() {
+        const allStates = JSON.parse(localStorage.getItem(storagePrefix + 'widgetStates')) || {};
+        document.querySelectorAll('.widget').forEach(w => {
+            const id = w.dataset.id;
+            if (id) {
+                allStates[id] = {
+                    ...allStates[id], // Preserve content data
+                    top: w.style.top,
+                    left: w.style.left,
+                    width: w.style.width,
+                    height: w.style.height,
+                    visible: w.style.display !== 'none',
+                    collapsed: w.classList.contains('collapsed')
+                };
+            }
+        });
+        localStorage.setItem(storagePrefix + 'widgetStates', JSON.stringify(allStates));
+    }
+
+    // --- WIDGET DEFINITIONS & INITIALIZATION ---
+    const widgetDefinitions = {
+        'clock-widget': { name: 'Chronometer', init: initClock, defaultState: { visible: true, top: '20px', left: '20px', width: '400px', height: '160px' } },
+        'todo-widget': { name: 'Objectives', init: initTodo, defaultState: { visible: true, top: '190px', left: '20px', width: '400px', height: '300px' } },
+        'timer-stopwatch-widget': { name: 'Artifact Timer', init: initTimerStopwatch, defaultState: { visible: true, top: '20px', left: '440px', width: '300px', height: '350px' } },
+        'reminders-widget': { name: 'Field Notes', init: initReminders, defaultState: { visible: true, top: '380px', left: '440px', width: '300px', height: '220px' } },
+        'calculator-widget': { name: 'Abacus', init: initCalculator, defaultState: { visible: true, top: '500px', left: '20px', width: '280px', height: '310px' } },
+        'quote-widget': { name: 'Ancient Proverb', init: initQuote, defaultState: { visible: true, top: '20px', right: '20px', left: 'auto', width: '320px', height: '160px' } },
+        'calendar-widget': { name: 'Calendar', init: initCalendar, defaultState: { visible: true, top: '190px', right: '20px', left: 'auto', width: '320px', height: '250px' } },
+        'pomodoro-widget': { name: 'Excavation Timer', init: initPomodoro, defaultState: { visible: false, top: '450px', right: '20px', left: 'auto', width: '320px', height: '180px' } },
+        'habit-widget': { name: 'Field Journal', init: initHabitTracker, defaultState: { visible: false, top: '610px', left: '440px', width: '300px', height: '200px' } },
+        'world-clock-widget': { name: 'Global Clocks', init: initWorldClock, defaultState: { visible: false, top: '640px', right: '20px', left: 'auto', width: '320px', height: '200px' } },
+        'ledger-widget': { name: 'Expedition Ledger', init: initLedger, defaultState: { visible: false, top: '500px', left: '320px', width: '350px', height: '250px' } },
+        'telegram-widget': { name: 'Telegram Ticker', init: initTelegram, defaultState: { visible: false, top: '500px', left: '680px', width: '300px', height: '250px' } },
+        'barometer-widget': { name: 'Field Barometer', init: initBarometer, defaultState: { visible: false, top: '820px', left: '20px', width: '280px', height: '150px' } },
+        'safe-widget': { name: 'Captain\'s Safe', init: initSafe, defaultState: { visible: false, top: '820px', left: '320px', width: '350px', height: '200px' } },
+        'investigation-widget': { name: 'Investigation Board', init: initInvestigation, defaultState: { visible: false, top: '760px', left: '680px', width: '300px', height: '250px' } },
+    };
+
+    function initializeDesktop() {
+        Object.keys(widgetDefinitions).forEach(id => {
+            const widget = document.getElementById(id);
+            if (!widget) return;
+            
+            const savedState = getWidgetState(id);
+            const defaultState = widgetDefinitions[id].defaultState;
+            const state = { ...defaultState, ...savedState };
+            
+            widget.style.top = state.top || '';
+            widget.style.left = state.left || '';
+            widget.style.right = state.right || '';
+            if (state.left === 'auto') widget.style.left = '';
+            widget.style.width = state.width || '';
+            widget.style.height = state.height || '';
+            widget.style.display = state.visible ? 'flex' : 'none';
+            if (state.collapsed) widget.classList.add('collapsed');
+
+            widgetDefinitions[id].init(id, state);
+            makeWidgetInteractive(widget);
+        });
+        initStickyNotes();
+    }
+
+    function buildWidgetHeader(widgetId, title) {
+        const widget = document.getElementById(widgetId);
+        widget.innerHTML = `
+            <div class="widget-header">
+                <span class="title">${title}</span>
+                <div class="widget-header-controls">
+                    <span class="collapse-btn" title="Collapse">_</span>
+                    <span class="close-btn" title="Close">X</span>
+                </div>
+            </div>
+            <div class="widget-content"></div>
+        `;
+        widget.querySelector('.close-btn').addEventListener('click', () => {
+            widget.style.display = 'none';
+            saveWidgetState(widgetId, { visible: false });
+        });
+        widget.querySelector('.collapse-btn').addEventListener('click', () => {
+            widget.classList.toggle('collapsed');
+            saveWidgetState(widgetId, { collapsed: widget.classList.contains('collapsed') });
+        });
+        return widget.querySelector('.widget-content');
+    }
+
+    // --- INDIVIDUAL WIDGET INIT FUNCTIONS ---
+    function initClock(id) {
+        const content = buildWidgetHeader(id, 'EXPEDITION CHRONOMETER');
+        content.innerHTML = `<div id="clock-time">00:00:00</div><div id="clock-date">The First Day</div>`;
+        const timeEl = content.querySelector('#clock-time'), dateEl = content.querySelector('#clock-date');
+        const update = () => {
+            const now = new Date();
+            timeEl.textContent = now.toLocaleTimeString('en-US', {hour12: true, hour: '2-digit', minute:'2-digit'});
+            dateEl.textContent = now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        };
+        setInterval(update, 1000); update();
+    }
+    
+    function initTodo(id) {
+        const content = buildWidgetHeader(id, 'FIELD OBJECTIVES');
+        content.innerHTML = `<ul id="todo-list"></ul><input type="text" id="new-task-input" placeholder="New objective...">`;
+        const listEl = content.querySelector('#todo-list'), inputEl = content.querySelector('#new-task-input');
+        let state = getWidgetState(id);
+        let tasks = state.tasks || [];
+        const save = () => saveWidgetState(id, { tasks });
+        const render = () => {
+            listEl.innerHTML = '';
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.className = task.done ? 'done' : '';
+                li.innerHTML = `<input type="checkbox" data-index="${index}" ${task.done ? 'checked' : ''}><span contenteditable="true" data-index="${index}">${task.text}</span><span class="delete-item" data-index="${index}">[X]</span>`;
+                listEl.appendChild(li);
+            });
+        };
+        inputEl.addEventListener('keypress', e => { if (e.key === 'Enter' && inputEl.value.trim() !== '') { tasks.push({ text: inputEl.value.trim(), done: false }); inputEl.value = ''; save(); render(); } });
+        listEl.addEventListener('click', e => {
+            const index = e.target.dataset.index; if (!index) return;
+            if (e.target.matches('.delete-item')) tasks.splice(index, 1);
+            else if (e.target.matches('input[type="checkbox"]')) tasks[index].done = !tasks[index].done;
+            else return;
+            save(); render();
+        });
+        listEl.addEventListener('blur', e => { if (e.target.matches('span[contenteditable]')) { tasks[e.target.dataset.index].text = e.target.textContent; save(); } }, true);
+        render();
+    }
+
+    function initTimerStopwatch(id) {
+        const content = buildWidgetHeader(id, 'ARTIFACT TIMER');
+        content.innerHTML = `
+            <div><strong>TIMER</strong></div><div id="timer-display">00:00</div>
+            <div class="timer-inputs"><input type="text" id="timer-input" placeholder="MM:SS" style="width: 80px;"><button id="set-timer-btn">SET</button></div>
+            <div class="controls"><button id="timer-start-pause-btn">START</button><button id="timer-reset-btn">RESET</button></div>
+            <hr style="border-color: var(--border-color); margin: 10px 0; border-style: dashed;">
+            <div><strong>STOPWATCH</strong></div><div id="stopwatch-display">00:00:00.00</div>
+            <div class="controls"><button id="stopwatch-start-pause-btn">START</button><button id="stopwatch-lap-btn">LAP</button><button id="stopwatch-reset-btn">RESET</button></div>
+            <ol id="lap-times"></ol>`;
+        const timerDisplay = content.querySelector('#timer-display'), timerInput = content.querySelector('#timer-input'), setTimerBtn = content.querySelector('#set-timer-btn');
+        const startPauseTimerBtn = content.querySelector('#timer-start-pause-btn'), resetTimerBtn = content.querySelector('#timer-reset-btn');
+        let timerInterval, timerSeconds = 0, isTimerRunning = false, totalTimerSeconds = 0;
+        function updateTimerDisplay() {
+            const mins = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+            const secs = (timerSeconds % 60).toString().padStart(2, '0');
+            timerDisplay.textContent = `${mins}:${secs}`;
+        }
+        setTimerBtn.addEventListener('click', () => { const parts = timerInput.value.split(':'); totalTimerSeconds = (parseInt(parts[0], 10) || 0) * 60 + (parseInt(parts[1], 10) || 0); timerSeconds = totalTimerSeconds; updateTimerDisplay(); });
+        startPauseTimerBtn.addEventListener('click', () => {
+            isTimerRunning = !isTimerRunning;
+            if (isTimerRunning) {
+                if (timerSeconds <= 0) timerSeconds = totalTimerSeconds;
+                if (timerSeconds > 0) {
+                    startPauseTimerBtn.textContent = 'PAUSE';
+                    timerInterval = setInterval(() => {
+                        timerSeconds--; updateTimerDisplay();
+                        if (timerSeconds <= 0) { clearInterval(timerInterval); isTimerRunning = false; startPauseTimerBtn.textContent = 'START'; showAlert('Timer Expired!'); }
+                    }, 1000);
+                } else { isTimerRunning = false; }
+            } else { clearInterval(timerInterval); startPauseTimerBtn.textContent = 'RESUME'; }
+        });
+        resetTimerBtn.addEventListener('click', () => { clearInterval(timerInterval); isTimerRunning = false; timerSeconds = totalTimerSeconds; startPauseTimerBtn.textContent = 'START'; updateTimerDisplay(); });
+        const stopwatchDisplay = content.querySelector('#stopwatch-display'), startPauseStopwatchBtn = content.querySelector('#stopwatch-start-pause-btn'), lapBtn = content.querySelector('#stopwatch-lap-btn');
+        const resetStopwatchBtn = content.querySelector('#stopwatch-reset-btn'), lapTimesList = content.querySelector('#lap-times');
+        let stopwatchInterval, stopwatchTime = 0, isStopwatchRunning = false;
+        function formatStopwatchTime(time) { const ms = Math.floor((time % 1000) / 10).toString().padStart(2, '0'), secs = Math.floor((time / 1000) % 60).toString().padStart(2, '0'), mins = Math.floor((time / (1000 * 60)) % 60).toString().padStart(2, '0'); return `${mins}:${secs}.${ms}`; }
+        startPauseStopwatchBtn.addEventListener('click', () => {
+            isStopwatchRunning = !isStopwatchRunning;
+            if (isStopwatchRunning) {
+                startPauseStopwatchBtn.textContent = 'PAUSE'; const startTime = Date.now() - stopwatchTime;
+                stopwatchInterval = setInterval(() => { stopwatchTime = Date.now() - startTime; stopwatchDisplay.textContent = formatStopwatchTime(stopwatchTime); }, 10);
+            } else { clearInterval(stopwatchInterval); startPauseStopwatchBtn.textContent = 'RESUME'; }
+        });
+        lapBtn.addEventListener('click', () => { if (isStopwatchRunning) { const li = document.createElement('li'); li.textContent = formatStopwatchTime(stopwatchTime); lapTimesList.prepend(li); } });
+        resetStopwatchBtn.addEventListener('click', () => { clearInterval(stopwatchInterval); isStopwatchRunning = false; stopwatchTime = 0; startPauseStopwatchBtn.textContent = 'START'; stopwatchDisplay.textContent = '00:00:00.00'; lapTimesList.innerHTML = ''; });
+    }
+
+    function initReminders(id) {
+        const content = buildWidgetHeader(id, 'FIELD NOTES');
+        content.innerHTML = `<ul id="reminders-list"></ul><input type="text" id="reminder-msg" placeholder="Note..."><input type="time" id="reminder-time" style="margin-top: 5px;"><button id="add-reminder-btn" style="margin-top: 5px; width: 100%;">ADD NOTE</button>`;
+        const listEl = content.querySelector('#reminders-list'), msgInput = content.querySelector('#reminder-msg'), timeInput = content.querySelector('#reminder-time'), addBtn = content.querySelector('#add-reminder-btn');
+        let state = getWidgetState(id); let reminders = state.reminders || [];
+        const save = () => saveWidgetState(id, { reminders });
+        const render = () => {
+            listEl.innerHTML = ''; reminders.sort((a,b) => a.time.localeCompare(b.time));
+            reminders.forEach((r, i) => { listEl.innerHTML += `<li>[${r.time}] ${r.msg} <span class="delete-item" data-index="${i}" style="cursor:pointer; float:right;">[X]</span></li>`; });
+        };
+        listEl.addEventListener('click', e => { if (e.target.matches('.delete-item')) { reminders.splice(e.target.dataset.index, 1); save(); render(); } });
+        addBtn.addEventListener('click', () => { if (msgInput.value.trim() && timeInput.value) { reminders.push({ msg: msgInput.value.trim(), time: timeInput.value, triggered: false }); save(); render(); msgInput.value = ''; timeInput.value = ''; } });
+        function checkReminders() {
+            const currentTime = new Date().toTimeString().substring(0, 5); let changed = false;
+            reminders.forEach(r => { if (!r.triggered && r.time === currentTime) { showAlert(`FIELD NOTE: ${r.msg}`); r.triggered = true; changed = true; } });
+            if (currentTime === '00:00') { reminders.forEach(r => { if(r.triggered) {r.triggered = false; changed = true;}}); }
+            if (changed) save();
+        }
+        setInterval(checkReminders, 1000); render();
+    }
+
+    function initCalculator(id) {
+        const content = buildWidgetHeader(id, 'ABACUS');
+        content.innerHTML = `<input type="text" id="calc-display" readonly style="text-align: right; margin-bottom: 5px; font-size: 1.6rem; padding: 5px;"><div id="calc-buttons" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px;"><button>7</button><button>8</button><button>9</button><button class="op">/</button><button>4</button><button>5</button><button>6</button><button class="op">*</button><button>1</button><button>2</button><button>3</button><button class="op">-</button><button>0</button><button>.</button><button id="calc-clear">C</button><button class="op">+</button><button id="calc-equals" style="grid-column: span 4;">=</button></div>`;
+        const display = content.querySelector('#calc-display');
+        content.querySelector('#calc-buttons').addEventListener('click', (e) => {
+            if (!e.target.matches('button')) return;
+            const action = e.target.textContent;
+            if (e.target.id === 'calc-clear') display.value = '';
+            else if (e.target.id === 'calc-equals') { try { display.value = eval(display.value.replace(/[^-()\d/*+.]/g, '')); } catch { display.value = 'Error'; } }
+            else { display.value += action; }
+        });
+    }
+
+    function initQuote(id) {
+        const content = buildWidgetHeader(id, 'ANCIENT PROVERB');
+        content.style.fontSize = '1.2rem'; content.style.lineHeight = '1.6';
+        const quotes = ["Fortune and glory, kid. Fortune and glory.", "The best treasures are the ones you find yourself.", "A map is not the territory. The real adventure is the journey.", "Some artifacts are best left undisturbed.", "History is written by the victors. I'm more interested in the footnotes.", "X never, ever marks the spot."];
+        const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+        content.textContent = `"${quotes[dayOfYear % quotes.length]}"`;
+    }
+
+    function initCalendar(id) {
+        const content = buildWidgetHeader(id, 'EXCAVATION CALENDAR');
+        content.innerHTML = `<div id="calendar-header" style="text-align: center; margin-bottom: 10px; font-weight: bold;"></div><div id="calendar-grid"></div>`;
+        const calHead = content.querySelector('#calendar-header'), calGrid = content.querySelector('#calendar-grid'), now = new Date();
+        calHead.textContent = now.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }).toUpperCase();
+        ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].forEach(day => calGrid.innerHTML += `<div class="day-name">${day}</div>`);
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay(), daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        for (let i = 0; i < firstDay; i++) calGrid.appendChild(document.createElement('div'));
+        for (let i = 1; i <= daysInMonth; i++) {
+            const dayEl = document.createElement('div'); dayEl.textContent = i;
+            if (i === now.getDate()) dayEl.className = 'today';
+            calGrid.appendChild(dayEl);
+        }
+    }
+    
+    // --- NEW WIDGET INIT FUNCTIONS ---
+    function initPomodoro(id) {
+        const content = buildWidgetHeader(id, 'EXCAVATION TIMER');
+        content.innerHTML = `<div id="pomodoro-time">25:00</div><div id="pomodoro-status">Ready to Dig</div><div class="controls"><button id="pomo-start">Start</button><button id="pomo-reset">Reset</button></div>`;
+        const timeEl = content.querySelector('#pomodoro-time'), statusEl = content.querySelector('#pomodoro-status');
+        const startBtn = content.querySelector('#pomo-start'), resetBtn = content.querySelector('#pomo-reset');
+        let interval, seconds = 1500, isRunning = false, onBreak = false;
+        const updateDisplay = () => { timeEl.textContent = `${Math.floor(seconds/60).toString().padStart(2,'0')}:${(seconds%60).toString().padStart(2,'0')}`; };
+        const startTimer = () => {
+            isRunning = true; startBtn.textContent = 'Pause';
+            interval = setInterval(() => {
+                seconds--; updateDisplay();
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    onBreak = !onBreak;
+                    seconds = onBreak ? 300 : 1500;
+                    statusEl.textContent = onBreak ? 'Break Time!' : 'Ready to Dig';
+                    showAlert(onBreak ? 'Time for a break!' : 'Break is over. Back to work!');
+                    updateDisplay(); isRunning = false; startBtn.textContent = 'Start';
+                }
+            }, 1000);
+        };
+        startBtn.addEventListener('click', () => { isRunning ? (clearInterval(interval), isRunning = false, startBtn.textContent = 'Resume') : startTimer(); });
+        resetBtn.addEventListener('click', () => { clearInterval(interval); seconds = 1500; onBreak = false; isRunning = false; startBtn.textContent = 'Start'; statusEl.textContent = 'Ready to Dig'; updateDisplay(); });
+    }
+
+    function initHabitTracker(id) {
+        const content = buildWidgetHeader(id, 'FIELD JOURNAL');
+        content.innerHTML = `<input type="text" id="habit-name" placeholder="Habit Name..."><div id="habit-grid"></div>`;
+        const nameInput = content.querySelector('#habit-name'), grid = content.querySelector('#habit-grid');
+        let state = getWidgetState(id);
+        let habit = state.habit || { name: '', days: Array(7).fill(false) };
+        const save = () => saveWidgetState(id, { habit });
+        const render = () => {
+            nameInput.value = habit.name;
+            grid.innerHTML = '';
+            habit.days.forEach((done, index) => {
+                const dayEl = document.createElement('div');
+                dayEl.className = `habit-day ${done ? 'complete' : ''}`;
+                dayEl.dataset.day = index;
+                dayEl.title = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'][index];
+                grid.appendChild(dayEl);
+            });
+        };
+        nameInput.addEventListener('change', () => { habit.name = nameInput.value; save(); });
+        grid.addEventListener('click', e => {
+            if (e.target.matches('.habit-day')) {
+                const dayIndex = e.target.dataset.day;
+                habit.days[dayIndex] = !habit.days[dayIndex];
+                save(); render();
+            }
+        });
+        render();
+    }
+
+    function initWorldClock(id) {
+        const content = buildWidgetHeader(id, 'GLOBAL EXPEDITION CLOCKS');
+        content.innerHTML = `<div id="world-clocks-container"></div>`;
+        const container = content.querySelector('#world-clocks-container');
+        const timezones = { 'London': 'Europe/London', 'Cairo': 'Africa/Cairo', 'Lima': 'America/Lima', 'Shanghai': 'Asia/Shanghai' };
+        const render = () => {
+            container.innerHTML = '';
+            for (const [city, zone] of Object.entries(timezones)) {
+                const time = new Date().toLocaleTimeString('en-US', { timeZone: zone, hour: '2-digit', minute: '2-digit' });
+                container.innerHTML += `<div class="world-clock"><strong>${city}:</strong> ${time}</div>`;
+            }
+        };
+        setInterval(render, 1000); render();
+    }
+
+    function initLedger(id) {
+        const content = buildWidgetHeader(id, 'EXPEDITION LEDGER');
+        content.innerHTML = `<ul id="ledger-list"></ul><div id="ledger-total">TOTAL: $0.00</div><div class="controls" style="margin-top: 5px;"><input type="text" id="ledger-item-name" placeholder="Item"><input type="number" id="ledger-item-cost" placeholder="Cost" style="width: 80px;"><button id="add-ledger-item">+</button></div>`;
+        const listEl = content.querySelector('#ledger-list'), totalEl = content.querySelector('#ledger-total'), nameInput = content.querySelector('#ledger-item-name'), costInput = content.querySelector('#ledger-item-cost'), addBtn = content.querySelector('#add-ledger-item');
+        let state = getWidgetState(id); let items = state.items || [];
+        const save = () => saveWidgetState(id, { items });
+        const render = () => {
+            listEl.innerHTML = ''; let total = 0;
+            items.forEach((item, index) => {
+                listEl.innerHTML += `<li><div class="ledger-item"><span>${item.name}</span><span>$${item.cost.toFixed(2)}</span></div><span class="delete-item" data-index="${index}">[X]</span></li>`;
+                total += item.cost;
+            });
+            totalEl.textContent = `TOTAL: $${total.toFixed(2)}`;
+        };
+        addBtn.addEventListener('click', () => {
+            const name = nameInput.value.trim(), cost = parseFloat(costInput.value);
+            if (name && !isNaN(cost)) { items.push({ name, cost }); save(); render(); nameInput.value = ''; costInput.value = ''; }
+        });
+        listEl.addEventListener('click', e => { if (e.target.matches('.delete-item')) { items.splice(e.target.dataset.index, 1); save(); render(); } });
+        render();
+    }
+    
+    function initTelegram(id) {
+        const content = buildWidgetHeader(id, 'TELEGRAM TICKER');
+        content.innerHTML = `<ul id="telegram-list"></ul>`;
+        const listEl = content.querySelector('#telegram-list');
+        const messages = ["ARCHAEOLOGISTS UNCOVER TOMB NEAR GIZA STOP", "RIVAL EXPEDITION SPOTTED IN CAIRO STOP", "ARTIFACT SHOWING UNUSUAL ENERGY SIGNATURES STOP", "SANDSTORM APPROACHING FROM WEST STOP", "REQUEST FOR MORE SUPPLIES DENIED BY MINISTRY STOP"];
+        let msgIndex = 0;
+        listEl.innerHTML = `<li>-- STANDING BY FOR TRANSMISSIONS --</li>`;
+        setInterval(() => {
+            if (document.getElementById(id).style.display !== 'none') {
+                const li = document.createElement('li');
+                li.textContent = messages[msgIndex % messages.length];
+                listEl.prepend(li);
+                if (listEl.children.length > 10) listEl.lastChild.remove();
+                msgIndex++;
+            }
+        }, 15000);
+    }
+    
+    function initBarometer(id) {
+        const content = buildWidgetHeader(id, 'FIELD BAROMETER');
+        content.innerHTML = `<div id="barometer-content"></div>`;
+        content.querySelector('#barometer-content').innerHTML = `
+            <div><strong>New Orleans, LA</strong></div>
+            <div style="font-size: 2.5rem; margin: 5px 0;">88°F</div>
+            <div>Scattered Clouds</div>
+            <div>Wind: 8 mph SW</div>
+        `;
+    }
+
+    function initSafe(id) {
+        const content = buildWidgetHeader(id, 'CAPTAIN\'S SAFE');
+        let state = getWidgetState(id);
+        state.isLocked = state.password ? (state.isLocked === false ? false : true) : false;
+        state.contentText = state.contentText || "";
+
+        const render = () => {
+            content.innerHTML = ''; // Clear previous content
+            if (!state.password) {
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 10px;">
+                        <div>Set a 4-digit combination:</div>
+                        <div style="display: flex; gap: 5px; justify-content: center; margin: 10px 0;">
+                            <input type="text" maxlength="1" class="combo-input" style="width: 30px; text-align: center; font-size: 1.5rem;">
+                            <input type="text" maxlength="1" class="combo-input" style="width: 30px; text-align: center; font-size: 1.5rem;">
+                            <input type="text" maxlength="1" class="combo-input" style="width: 30px; text-align: center; font-size: 1.5rem;">
+                            <input type="text" maxlength="1" class="combo-input" style="width: 30px; text-align: center; font-size: 1.5rem;">
+                        </div>
+                        <button id="set-combo-btn">Set & Lock</button>
+                        <div class="safe-error" style="color: #c04040; margin-top: 5px; height: 15px;"></div>
+                    </div>`;
+                content.querySelector('#set-combo-btn').addEventListener('click', handleSetPassword);
+            } else if (state.isLocked) {
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 10px;">
+                        <div>Enter combination:</div>
+                        <div style="display: flex; gap: 5px; justify-content: center; margin: 10px 0;">
+                            <input type="password" maxlength="1" class="combo-input" style="width: 30px; text-align: center; font-size: 1.5rem;">
+                            <input type="password" maxlength="1" class="combo-input" style="width: 30px; text-align: center; font-size: 1.5rem;">
+                            <input type="password" maxlength="1" class="combo-input" style="width: 30px; text-align: center; font-size: 1.5rem;">
+                            <input type="password" maxlength="1" class="combo-input" style="width: 30px; text-align: center; font-size: 1.5rem;">
+                        </div>
+                        <button id="unlock-btn">Unlock</button>
+                        <div class="safe-error" style="color: #c04040; margin-top: 5px; height: 15px;"></div>
+                    </div>`;
+                content.querySelector('#unlock-btn').addEventListener('click', handleUnlock);
+            } else {
+                content.innerHTML = `
+                    <textarea id="safe-content" style="height: calc(100% - 45px);" placeholder="Enter sensitive notes...">${state.contentText}</textarea>
+                    <button id="lock-btn" style="width: 100%; margin-top: 5px;">Lock Safe</button>`;
+                content.querySelector('#lock-btn').addEventListener('click', handleLock);
+                content.querySelector('#safe-content').addEventListener('change', (e) => {
+                    state.contentText = e.target.value;
+                    saveWidgetState(id, { contentText: state.contentText });
+                });
+            }
+            const comboInputs = content.querySelectorAll('.combo-input');
+            if (comboInputs.length > 0) {
+                comboInputs[0].focus();
+                comboInputs.forEach((input, index) => {
+                    input.addEventListener('input', () => { if (input.value && index < comboInputs.length - 1) comboInputs[index + 1].focus(); });
+                    input.addEventListener('keydown', (e) => { if (e.key === 'Backspace' && !input.value && index > 0) comboInputs[index - 1].focus(); });
+                });
+            }
+        };
+        const getCombination = () => Array.from(content.querySelectorAll('.combo-input')).map(i => i.value).join('');
+        const displayError = (message) => {
+            const errorEl = content.querySelector('.safe-error');
+            if (errorEl) { errorEl.textContent = message; setTimeout(() => { if(errorEl) errorEl.textContent = ''; }, 2000); }
+        };
+        const handleSetPassword = () => {
+            const newPassword = getCombination();
+            if (/^\d{4}$/.test(newPassword)) {
+                state.password = newPassword; state.isLocked = false;
+                saveWidgetState(id, { password: state.password, isLocked: state.isLocked });
+                playSound('click'); render();
+            } else { displayError("Must be 4 digits."); }
+        };
+        const handleUnlock = () => {
+            if (getCombination() === state.password) {
+                state.isLocked = false; saveWidgetState(id, { isLocked: false });
+                playSound('click'); render();
+            } else {
+                displayError("Incorrect combination.");
+                const widget = document.getElementById(id);
+                widget.style.animation = 'shake 0.5s';
+                setTimeout(() => widget.style.animation = '', 500);
+            }
+        };
+        const handleLock = () => {
+            state.isLocked = true; saveWidgetState(id, { isLocked: true });
+            playSound('click'); render();
+        };
+        render();
+    }
+
+    function initInvestigation(id) {
+        const content = buildWidgetHeader(id, 'INVESTIGATION BOARD');
+        content.innerHTML = `<textarea id="investigation-board" placeholder="Connect the dots... sketch out theories, list suspects, track clues..."></textarea>`;
+        const textarea = content.querySelector('#investigation-board');
+        let state = getWidgetState(id);
+        textarea.value = state.text || '';
+        textarea.addEventListener('change', () => saveWidgetState(id, { text: textarea.value }));
+    }
+
+    function initStickyNotes() {
+        const container = document.getElementById('sticky-notes-container');
+        const addBtn = document.getElementById('add-note-btn');
+        let notes = JSON.parse(localStorage.getItem(storagePrefix + 'notes')) || [];
+        let noteCounter = localStorage.getItem(storagePrefix + 'noteCounter') || 0;
+        function saveNotes() { localStorage.setItem(storagePrefix + 'notes', JSON.stringify(notes)); localStorage.setItem(storagePrefix + 'noteCounter', noteCounter); }
+        function createNoteElement(note) {
+            const noteEl = document.createElement('div');
+            noteEl.className = 'widget sticky-note'; noteEl.id = note.id; noteEl.dataset.id = note.id;
+            noteEl.style.cssText = `left:${note.left}; top:${note.top}; width:${note.width}; height:${note.height};`;
+            noteEl.innerHTML = `<div class="widget-header"><span class="title">LOG ENTRY</span><div class="widget-header-controls"><span class="collapse-btn">_</span><span class="close-btn">X</span></div></div><div class="widget-content"><textarea>${note.content}</textarea></div>`;
+            container.appendChild(noteEl);
+            makeWidgetInteractive(noteEl);
+            noteEl.querySelector('.close-btn').addEventListener('click', () => { notes = notes.filter(n => n.id !== note.id); noteEl.remove(); saveNotes(); });
+            noteEl.querySelector('.collapse-btn').addEventListener('click', () => noteEl.classList.toggle('collapsed'));
+            const textarea = noteEl.querySelector('textarea');
+            const saveContent = () => { const n = notes.find(n => n.id === note.id); if (n) { n.content = textarea.value; saveNotes(); }};
+            textarea.addEventListener('change', saveContent);
+            new ResizeObserver(() => { const n = notes.find(n => n.id === note.id); if (n) { n.width = noteEl.style.width; n.height = noteEl.style.height; saveNotes(); } }).observe(noteEl);
+        }
+        addBtn.addEventListener('click', () => {
+            const newNote = { id: `note-${noteCounter++}`, content: '', top: '100px', left: `${100 + ((notes.length) % 5) * 20}px`, width: '220px', height: '220px' };
+            notes.push(newNote); createNoteElement(newNote); saveNotes();
+        });
+        notes.forEach(createNoteElement);
+    }
+
+    // --- BOTTOM BAR & MODAL CONTROLS ---
+    (function initGlobalControls() {
+        const modal = document.getElementById('widget-selector-modal');
+        const grid = document.getElementById('widget-selector-grid');
+        Object.keys(widgetDefinitions).forEach(id => {
+            const btn = document.createElement('button');
+            btn.textContent = widgetDefinitions[id].name;
+            btn.dataset.id = id;
+            grid.appendChild(btn);
+        });
+        grid.addEventListener('click', e => {
+            if (e.target.matches('button')) {
+                const widget = document.getElementById(e.target.dataset.id);
+                if (widget) { widget.style.display = 'flex'; saveWidgetState(widget.dataset.id, { visible: true }); }
+                modal.style.display = 'none';
+            }
+        });
+        document.getElementById('add-widget-btn').addEventListener('click', () => modal.style.display = 'flex');
+        document.getElementById('widget-selector-close').addEventListener('click', () => modal.style.display = 'none');
+
+        const resetModal = document.getElementById('reset-confirm-modal');
+        document.getElementById('reset-btn').addEventListener('click', () => { resetModal.style.display = 'flex'; });
+        document.getElementById('reset-cancel-btn').addEventListener('click', () => { resetModal.style.display = 'none'; });
+        document.getElementById('reset-confirm-btn').addEventListener('click', () => { localStorage.clear(); window.location.reload(); });
+
+        document.getElementById('fullscreen-btn').addEventListener('click', () => {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(err => showAlert(`Error: ${err.message}`));
+            else document.exitFullscreen();
+        });
+
+        const toggleBtn = document.getElementById('sound-toggle-btn');
+        function startHum() { if (!audio.context || audio.isPlaying) return; audio.hum = audio.context.createOscillator(); audio.hum.type = 'sine'; audio.hum.frequency.setValueAtTime(40, audio.context.currentTime); const humGain = audio.context.createGain(); humGain.gain.setValueAtTime(0.05, audio.context.currentTime); audio.hum.connect(humGain).connect(audio.masterGain); audio.hum.start(0); audio.isPlaying = true; toggleBtn.textContent = 'ON'; }
+        function stopHum() { if (!audio.isPlaying || !audio.hum) return; audio.hum.stop(0); audio.isPlaying = false; audio.hum = null; toggleBtn.textContent = 'OFF'; }
+        toggleBtn.addEventListener('click', () => { if (!audio.context) return; if (audio.context.state === 'suspended') audio.context.resume(); audio.isPlaying ? stopHum() : startHum(); playSound('click'); });
+
+        const dayFill = document.getElementById('day-progress-fill');
+        const updateDayProgress = () => { const n = new Date(), s = new Date(n.getFullYear(), n.getMonth(), n.getDate()); dayFill.style.width = `${((n - s) / 86400000) * 100}%`; };
+        setInterval(updateDayProgress, 60000); updateDayProgress();
+        const netStatus = document.getElementById('network-status');
+        const updateOnlineStatus = () => { netStatus.textContent = `COMMS: ${navigator.onLine ? 'ONLINE' : 'OFFLINE'}`; netStatus.style.color = navigator.onLine ? 'var(--bg-color)' : '#ff9999'; };
+        window.addEventListener('online', updateOnlineStatus); window.addEventListener('offline', updateOnlineStatus); updateOnlineStatus();
+        const batStatus = document.getElementById('battery-status');
+        if ('getBattery' in navigator) {
+            navigator.getBattery().then(battery => {
+                const updateBat = () => { const level = Math.floor(battery.level * 100); batStatus.textContent = `COIL: ${level}% ${battery.charging ? '(CHR)' : ''}`; batStatus.style.color = (level < 20 && !battery.charging) ? '#ff9999' : 'var(--bg-color)'; };
+                battery.addEventListener('levelchange', updateBat); battery.addEventListener('chargingchange', updateBat); updateBat();
+            });
+        }
+    })();
+
+    // --- INITIAL LOAD ---
+    initializeDesktop();
+});
+</script>
+
+</body>
+</html>
